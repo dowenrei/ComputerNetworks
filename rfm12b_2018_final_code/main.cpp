@@ -10,12 +10,12 @@
 #include <stdio.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
-
+//#include "trans.h"
 #include "rfm12.h"
 
 
 uint8_t *bufptr;
-char str[100];	//the string want to send
+uint8_t str[114];	//the string want to send, taking str as 1 byte
 uint16_t p = 0;	//the position of string
 char c;
 uint8_t detect(void);
@@ -33,6 +33,7 @@ int main(void)
 	
         while(1)
 	{
+		//If something is received through uart 
 		if ((c = uart0_read()) != -1) {
 			put_ch(c);
 			str[i] = c;
@@ -40,7 +41,6 @@ int main(void)
 			if(c == '\n' || c == '\r') {
 				put_str("\n\r");
 				str[i+1] = '\n';
-				put_str(str);
 				*str = 0;
 				i = 0;
 			}	
