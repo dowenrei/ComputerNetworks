@@ -9,5 +9,6 @@
 //transmit
 uint8_t transmit(uint8_t length,uint8_t* data,uint8_t dest);
 
-//receive
-uint8_t receive(uint8_t length,uint8_t* data,uint8_t src);
+//receive and compare the data, 
+uint8_t receive(uint8_t* data);
+

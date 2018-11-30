@@ -4,7 +4,10 @@
 //#include <util/delay.h>
 //#include <avr/interrupt.h>
 
+#define SRC_PORT 21
+#define DEST_PORT 21 
 uint8_t app[114];
+
 
 struct trans{
     uint8_t ctrl[2];
@@ -15,11 +18,27 @@ struct trans{
     //data?
 };
 
-//not the correct function but still trying
+//not the correct function but still trying, assume data is word to be transmitted
 uint8_t transmit(uint8_t* data){
+    printf("Data %u",data[3]);
+    //struct trans msg;
     trans* msg=(trans*) data;
-    msg->checksum=data[1];
-    //printf("%u",msg->checksum);
+    //after this , data array will be same as msg array 
+    printf("Checksum %u",msg[1]);
+    uint8_t n;
+    //do control
+    msg->ctrl[0]=0x07;
+    msg->ctrl[1]=0x0b;
+
+    msg->src=SRC_PORT;
+    msg->dest=DEST_PORT;
+    msg->length=sizeof(data);
+    n=sizeof(data)+5;
+    //uint8_t to_checksum[n]={msg->ctrl[0],msg->ctrl[1],msg->src,msg->dest,msg->length,data};
+    //printf("Checksum value : %u",to_checksum[0]);
+    printf("Checksum %u",data[3]);
+    
+
     return 8; 
 }
 
@@ -34,21 +53,26 @@ uint16_t checksum(uint8_t* data,uint8_t length){
         }    
         else {         
             parity^=data[i];
-            printf("lsb %x\n",parity);
-            
+            printf("lsb %x\n",parity);           
         }
     }
     return parity;
 
 }
+uint8_t receive(uint8_t* data){
+    
+}
 
 int main(){
-    uint8_t trans_header[4]={0,1,2,3};    
+    uint8_t trans_header[4]={0,1,2,5};    
     uint8_t ans;
     ans=transmit(trans_header);
-    //aa46 not aa12
-    uint8_t parity_test[8] = {0x01, 0x10, 0xab, 0xbc, 0xef, 0xbe, 0xef,0x54};
-    checksum(parity_test,sizeof(parity_test));
+    //aa46 not aa12 
+    // Network. Header =0110, 
+    //uint8_t network_packet[8] = {0x01, 0x10, 0xab, 0xbc, 0xef, 0xbe, 0xef,0x54};
+    //uint8_t parity_test[8] = {0x01, 0x10, 0xab, 0xbc, 0xef, 0xbe, 0xef,0x54};
+    
+    //checksum(parity_test,sizeof(parity_test));
 } 
 
 
