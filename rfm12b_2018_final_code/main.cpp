@@ -20,15 +20,12 @@
 #define TRANS_MAX 121
 #define APP_MAX 114
 
-uint8_t *bufptr;
 uint8_t str[APP_MAX];	//the string want to send, taking each word as 1 byte
 uint8_t add;	// Address for Network Layer
 uint16_t p = 0;	//the position of string
-char c;
-uint8_t detect(void);
-void sync(void);
-uint8_t i=0;
-
+char c; // read uart char
+uint8_t i=0; // count char in uart
+uint8_t isframe=0;
 
 
 
@@ -36,7 +33,7 @@ int main(void)
 {
 	//testing array 
     //uint8_t app_data[6]={0x67,0x01,0x02,0x05,0x01,0x50};    
-	uint8_t transport_packet[TRANS_MAX] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,0x00};
+	uint8_t transport_packet[TRANS_MAX];
     //printf("Data %d",sizeof(app_data));
 
 // If put at rfm status complete, there might be a chance where we dont get to transmit message , so do a while loop for u_art, break loop after 2nd enter
@@ -74,15 +71,35 @@ int main(void)
 			//put_ch(c);
 			str[i] = c;
 			put_ch((char) str[i]);
-			i++;	
+			//count characters
+			i++;
+			//Segment Message if Message >114 characters
+			if (i==113){
+				isframe+=1;
+				if(isframe==16)
+        			isframe=0;
+				transmit_data(str,i,transport_packet,isframe);
+				*str = 0;
+				i = 0;
+			}
 			//If newline :
 			if(c == '\n' || c == '\r') {
 				put_str("\n\r");
-				transmit_data(str,i,transport_packet);
+				isframe=0;
+				transmit_data(str,i,transport_packet,isframe);
+				/*
+				//Print Transport Packet
+				for(uint8_t a =0; a<i+7;a++){
+        			printByte(transport_packet[a]);
+        			put_ch(' ');
+    			}
+				*/
 				*str = 0;
 				i = 0;	
 				break;
 			}
+
+ 
 		}
 	}
 	

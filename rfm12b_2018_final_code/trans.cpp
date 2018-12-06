@@ -83,6 +83,29 @@ int main(){
     uint8_t test = 1<<5;
     printf("Test %d ",test);
 
+       /*
+    char c='a';
+    uint8_t str[114];
+
+    str[0]=c;
+    printf("%x",str[0]);
+
+    str[1]=0x62;
+    printf("%c",str[1]);
+    
+    
+    for(int i =0; i<sizeof(app_data);i++){
+        printf("Trans %x",transport_packet[i]);
+    }
+    */
+
+    //aa46 not aa12 
+    // Network. Header =0110, 
+    //uint8_t network_packet[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,0x00};
+    //uint8_t parity_test[8] = {0x01, 0x10, 0xab, 0xbc, 0xef, 0xbe, 0xef,0x54};
+    
+    //checksum(parity_test,sizeof(parity_test));
+
 } 
 
 

@@ -13,7 +13,7 @@
 #define DEST_PORT 21 
 #define TRANS_MAX 114
 
-
+uint8_t seq=0x00;
 
 struct trans{
     uint8_t ctrl[2];
@@ -44,15 +44,14 @@ uint16_t checksum(uint8_t* data,uint8_t length){
 
 //not the correct function but still trying, assume data is word to be transmitted
 void transmit(uint8_t* data,uint8_t length,uint8_t* transport_packet){
-    
+
     struct trans msg;
     uint8_t *t_ptr=transport_packet;
     //trans* msg=(trans*) data;
     uint8_t n;
     //do control
     msg.ctrl[0]=0x00;
-    msg.ctrl[1]=0x00;
-
+    msg.ctrl[1]=seq << 4;
     msg.src=SRC_PORT;
     msg.dest=DEST_PORT;
     msg.length=length;
@@ -85,13 +84,25 @@ void transmit(uint8_t* data,uint8_t length,uint8_t* transport_packet){
         *(t_ptr+i)=to_checksum[i];
 
     }
+    printf("\n\r ");
+    seq+=1;
+    if (seq==16){
+        seq=0;
+    }
 }
 
 
 void receive(uint8_t* net_packet,uint8_t length){
+
     //currently didn't use length yet 
     trans* net=(trans*) net_packet;
-
+    //Check if the communication is reliable 0b0001 0000
+    printf("Control0 %x ",net->ctrl[0] & (1<<4));
+    //If the communication is reliable
+    if (net->ctrl[0] & (1<<4) == 0x10)
+        net->ctrl[0] |= 1<<7;
+    
+    printf("Control0 %x ",net->ctrl[0]);
     //printf("Received %x huh",*(net_packet+1)); works
     printf("Length %x ",net->length);
     //First Data is always net_packet+5
@@ -118,37 +129,40 @@ int main(){
     // to network layer    
     uint8_t transport_packet[TRANS_MAX] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,0x00};
     // from network layer, len=3,
-    uint8_t network_packet[TRANS_MAX] = {0x07, 0x0b, SRC_PORT, DEST_PORT, 0x06, 0x67, 0x01,0x02,0x05,0x01,0x50,0x40,0x7a};
+    uint8_t network_packet[TRANS_MAX] = {0x1d, 0x0b, SRC_PORT, DEST_PORT, 0x06, 0x67, 0x01,0x02,0x05,0x01,0x50,0x40,0x7a};
+
+ 
+
 
     
-    
-    //receive(network_packet,sizeof(network_packet));
+    receive(network_packet,sizeof(network_packet));
 
-    
-    transmit(app_data,sizeof(app_data),transport_packet); 
-    
     /*
-    char c='a';
-    uint8_t str[114];
-
-    str[0]=c;
-    printf("%x",str[0]);
-
-    str[1]=0x62;
-    printf("%c",str[1]);
-    
-    
-    for(int i =0; i<sizeof(app_data);i++){
-        printf("Trans %x",transport_packet[i]);
-    }
+    transmit(app_data,sizeof(app_data),transport_packet); 
+    transmit(app_data,sizeof(app_data),transport_packet); 
+    transmit(app_data,sizeof(app_data),transport_packet);
+    transmit(app_data,sizeof(app_data),transport_packet); 
+    transmit(app_data,sizeof(app_data),transport_packet); 
+    transmit(app_data,sizeof(app_data),transport_packet);
+    transmit(app_data,sizeof(app_data),transport_packet); 
+    transmit(app_data,sizeof(app_data),transport_packet); 
+    transmit(app_data,sizeof(app_data),transport_packet);
+    transmit(app_data,sizeof(app_data),transport_packet); 
+    transmit(app_data,sizeof(app_data),transport_packet); 
+    transmit(app_data,sizeof(app_data),transport_packet);
+    transmit(app_data,sizeof(app_data),transport_packet); 
+    transmit(app_data,sizeof(app_data),transport_packet); 
+    transmit(app_data,sizeof(app_data),transport_packet);
+    transmit(app_data,sizeof(app_data),transport_packet); 
+    transmit(app_data,sizeof(app_data),transport_packet); 
+    transmit(app_data,sizeof(app_data),transport_packet);
+    transmit(app_data,sizeof(app_data),transport_packet); 
+    transmit(app_data,sizeof(app_data),transport_packet); 
+    transmit(app_data,sizeof(app_data),transport_packet);
+    transmit(app_data,sizeof(app_data),transport_packet); 
+    transmit(app_data,sizeof(app_data),transport_packet); 
+    transmit(app_data,sizeof(app_data),transport_packet);
     */
-
-    //aa46 not aa12 
-    // Network. Header =0110, 
-    //uint8_t network_packet[8] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,0x00};
-    //uint8_t parity_test[8] = {0x01, 0x10, 0xab, 0xbc, 0xef, 0xbe, 0xef,0x54};
-    
-    //checksum(parity_test,sizeof(parity_test));
 } 
 
 

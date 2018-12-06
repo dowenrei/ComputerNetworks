@@ -1,15 +1,12 @@
 #include <stdio.h>
 #include <stdint.h>
-
 //memcpy need this
 #include<string.h>
-
 #define SRC_PORT 21
 #define DEST_PORT 21 
-#define TRANS_MAX 114
 #include "rfm12.h"
 
-
+uint8_t seq=0x00;
 struct trans{
     uint8_t ctrl[2];
     uint8_t src;
@@ -38,19 +35,21 @@ uint16_t checksum(uint8_t* data,uint8_t length){
 }
 
 //not the correct function but still trying, assume data is word to be transmitted
-void transmit_data(uint8_t* data,uint8_t length,uint8_t* transport_packet){
-    put_str("Sending through Port :\n\r");
-    uint8_t seq;
+void transmit_data(uint8_t* data,uint8_t length,uint8_t* transport_packet,uint8_t isframe){
+    printByte(isframe);
     struct trans msg;
     uint8_t *t_ptr=transport_packet;
     //trans* msg=(trans*) data;
     uint8_t n;
+
     //do control 
-    msg.ctrl[0]=0x00; //[0Message,00Checksum,0Unreliable,0NoFragment,0,00]
-    msg.ctrl[1]=0x00; //[Sequence -4bits, Fragment 4 bits]
+    msg.ctrl[0]=0x00; //[0Message,00Checksum,0Unreliable,0NoFragment,0Nth,00]
+    if(isframe !=0x00)
+        msg.ctrl[0] |= 1<<3;    
+    msg.ctrl[1]=seq<<4 | isframe; //[Sequence -4bits, Fragment 4 bits]
     msg.src=SRC_PORT;
 
-    put_ch((char) SRC_PORT);
+    //put_ch((char) SRC_PORT);
     msg.dest=DEST_PORT;
 
     msg.length=length;
@@ -73,8 +72,8 @@ void transmit_data(uint8_t* data,uint8_t length,uint8_t* transport_packet){
 
     for(uint8_t i =0; i<sizeof(to_checksum);i++){
         printf("%x ",to_checksum[i]);
-        printByte(to_checksum[i]);
-        put_ch(' ');
+        //printByte(to_checksum[i]);
+        //put_ch(' ');
     }
     put_str("\n\rAfter Checksum \n\r");
 
@@ -93,6 +92,13 @@ void transmit_data(uint8_t* data,uint8_t length,uint8_t* transport_packet){
         printByte(to_checksum[i]);
         put_ch(' ');
     }
+    put_str("\n\r");
+    //Increase seq number if it's not framed
+    if(isframe==0)
+        seq+=1;
+    if (seq==16)
+        seq=0;
+
 }
 
 

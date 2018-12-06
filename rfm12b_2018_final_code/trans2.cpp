@@ -1,10 +1,13 @@
-
+//backup of trans3.cpp on Friday 6/12/18
+#include <stdio.h>
+#include <stdint.h>
+//memcpy need this
+#include<string.h>
 #define SRC_PORT 21
 #define DEST_PORT 21 
-#define TRANS_MAX 114
+#include "rfm12.h"
 
-
-
+uint8_t seq=0x00;
 struct trans{
     uint8_t ctrl[2];
     uint8_t src;
@@ -33,37 +36,53 @@ uint16_t checksum(uint8_t* data,uint8_t length){
 }
 
 //not the correct function but still trying, assume data is word to be transmitted
-void transmit_data(uint8_t* data,uint8_t length,uint8_t* transport_packet){
-
+void transmit_data(uint8_t* data,uint8_t length,uint8_t* transport_packet,uint8_t isframe){
+    printByte(isframe);
     struct trans msg;
     uint8_t *t_ptr=transport_packet;
     //trans* msg=(trans*) data;
-    //uint8_t n;
-    //do control
-    msg.ctrl[0]=0x07;
-    msg.ctrl[1]=0x0b;
+    uint8_t n;
 
+    //do control 
+    msg.ctrl[0]=0x00; //[0Message,00Checksum,0Unreliable,0NoFragment,0Nth,00]
+    if(isframe !=0x00)
+        msg.ctrl[0] |= 1<<3;    
+    msg.ctrl[1]=seq<<4 | isframe; //[Sequence -4bits, Fragment 4 bits]
     msg.src=SRC_PORT;
+
+    //put_ch((char) SRC_PORT);
     msg.dest=DEST_PORT;
+
     msg.length=length;
     //cannot create variable size length, assume message is 6
-    //n=6+7;
+    n=msg.length+7;
 
     //concatenate array for checksum, to checksum array varies according to the app_data size 
-    uint8_t to_checksum[13]={msg.ctrl[0],msg.ctrl[1],msg.src,msg.dest,msg.length};
+    uint8_t to_checksum[n];
+    to_checksum[0]=msg.ctrl[0];
+    to_checksum[1]=msg.ctrl[1];
+    to_checksum[2]=msg.src;
+    to_checksum[3]=msg.dest;
+    to_checksum[4]=msg.length;
+    to_checksum[msg.length+5]=0x00;
+    to_checksum[msg.length+6]=0x00;
+    //{msg.ctrl[0],msg.ctrl[1],msg.src,msg.dest,msg.length};
+
+    //concatenate header with data 
     memcpy(to_checksum+5,data,msg.length);
 
     for(uint8_t i =0; i<sizeof(to_checksum);i++){
         printf("%x ",to_checksum[i]);
-        printByte(app_data[0]);
+        //printByte(to_checksum[i]);
+        //put_ch(' ');
     }
-
+    put_str("\n\rAfter Checksum \n\r");
 
 
     msg.checksum=checksum(to_checksum,sizeof(to_checksum));   
     printf("\nChecksum %x\n",msg.checksum);
     // MSB, LSB [masking to split msg.checksum to two 8 bits]
-    uint8_t checksums[2]={msg.checksum >> 8,msg.checksum & 0xFF};
+    uint8_t checksums[2]={ (uint8_t)(msg.checksum >> 8),(uint8_t)(msg.checksum & 0xFF)};
     
     //to_checksum is now transport_packet after adding the checksum bits
     memcpy(to_checksum+msg.length+5,checksums,sizeof(checksums));
@@ -71,8 +90,16 @@ void transmit_data(uint8_t* data,uint8_t length,uint8_t* transport_packet){
      for(uint8_t i =0; i<sizeof(to_checksum);i++){
         printf("%x ",to_checksum[i]);
         *(t_ptr+i)=to_checksum[i];
-
+        printByte(to_checksum[i]);
+        put_ch(' ');
     }
+    put_str("\n\r");
+    //Increase seq number if it's not framed
+    if(isframe==0)
+        seq+=1;
+    if (seq==16)
+        seq=0;
+
 }
 
 
