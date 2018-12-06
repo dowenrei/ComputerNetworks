@@ -18,7 +18,9 @@ main.o: main.cpp c:/winavr-20100110/lib/gcc/../../avr/include/avr/io.h \
   rfm12lib/rfm12_config.h rfm12lib/rfm12.h rfm12lib/rfm12_core.h \
   rfm12lib/uart.h \
   c:/winavr-20100110/lib/gcc/../../avr/include/avr/pgmspace.h \
-  c:/winavr-20100110/lib/gcc/../../avr/include/string.h
+  c:/winavr-20100110/lib/gcc/../../avr/include/string.h trans.h \
+  trans3.cpp rfm12.h rfm12lib/rfm12_config.h rfm12lib/rfm12.h \
+  rfm12lib/uart.h
 
 c:/winavr-20100110/lib/gcc/../../avr/include/avr/io.h:
 
@@ -67,3 +69,15 @@ rfm12lib/uart.h:
 c:/winavr-20100110/lib/gcc/../../avr/include/avr/pgmspace.h:
 
 c:/winavr-20100110/lib/gcc/../../avr/include/string.h:
+
+trans.h:
+
+trans3.cpp:
+
+rfm12.h:
+
+rfm12lib/rfm12_config.h:
+
+rfm12lib/rfm12.h:
+
+rfm12lib/uart.h:

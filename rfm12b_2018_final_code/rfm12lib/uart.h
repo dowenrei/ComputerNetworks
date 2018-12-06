@@ -12,4 +12,5 @@ char get_ch (void);
 void put_ch (char ch);
 void put_str (char *str);
 int uart0_read(void);
-
+void printByte(uint8_t byte);
+char toCharInHex(uint8_t h_byte);

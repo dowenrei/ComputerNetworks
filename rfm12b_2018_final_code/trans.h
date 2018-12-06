@@ -5,10 +5,12 @@
 #include <avr/pgmspace.h>
 #include <stdio.h>
 #include <string.h>
-#include "./trans.cpp"
+#include "./trans3.cpp"
 //transmit
-uint8_t transmit(uint8_t length,uint8_t* data,uint8_t dest);
+void transmit_data(uint8_t* data,uint8_t length,uint8_t* transport_packet);
 
 //receive and compare the data, 
-uint8_t receive(uint8_t* data);
+void receive(uint8_t* net_packet,uint8_t length);
+
+uint16_t checksum(uint8_t*data,uint8_t length);
 

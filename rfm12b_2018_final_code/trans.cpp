@@ -1,3 +1,4 @@
+//gcc trans.cpp -o trans && ./trans
 //#include <avr/io.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -60,19 +61,28 @@ uint16_t checksum(uint8_t* data,uint8_t length){
 
 }
 uint8_t receive(uint8_t* data){
-    
+    uint8_t *ptr=data;
+    *(ptr+1)={0x02};
+    return 0;
 }
+
+
 
 int main(){
     uint8_t trans_header[4]={0,1,2,5};    
     uint8_t ans;
-    ans=transmit(trans_header);
+    //ans=transmit(trans_header);
     //aa46 not aa12 
     // Network. Header =0110, 
-    //uint8_t network_packet[8] = {0x01, 0x10, 0xab, 0xbc, 0xef, 0xbe, 0xef,0x54};
+    uint8_t network_packet[8] = {0x01, 0x10, 0xab, 0xbc, 0xef, 0xbe, 0xef,0x54};
+    //ans=receive(network_packet);
+    printf("lsb %x\n",network_packet[1]);  
     //uint8_t parity_test[8] = {0x01, 0x10, 0xab, 0xbc, 0xef, 0xbe, 0xef,0x54};
     
     //checksum(parity_test,sizeof(parity_test));
+    uint8_t test = 1<<5;
+    printf("Test %d ",test);
+
 } 
 
 
