@@ -553,7 +553,7 @@ rfm12_start_tx(uint8_t type, uint8_t length) {
 	#endif
 	rfm12_tx(uint8_t len, uint8_t type, uint8_t *data) {
 		#if RFM12_UART_DEBUG
-			put_str("sending packet\r\n");
+			put_str("Sending packet through default physical layer\r\n");
 		#endif
 		printf("send");
 		printf("%u", len);
